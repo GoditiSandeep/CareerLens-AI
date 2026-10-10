@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: careerlens-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: careerlens
+      POSTGRES_PASSWORD: careerlens
+      POSTGRES_DB: careerlens
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerlens"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: careerlens-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://careerlens:careerlens@db:5432/careerlens
+      SECRET_KEY: change-me-in-production
+      AI_PROVIDER: mock
+      MOCK_AI_MODE: "true"
+      SEED_DEMO_DATA: "true"
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Baked into the bundle at build time (Vite inlines VITE_* vars).
+        VITE_API_URL: http://localhost:8000
+    container_name: careerlens-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  uploads:

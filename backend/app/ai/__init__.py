@@ -1,0 +1,1 @@
+"""AI service package: provider abstraction + mock fallback."""
