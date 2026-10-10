@@ -26,6 +26,7 @@ export default defineConfig({
       "/aptitude": { target: "http://localhost:8000", changeOrigin: true },
       "/coding": { target: "http://localhost:8000", changeOrigin: true },
       "/ai": { target: "http://localhost:8000", changeOrigin: true },
+      "/admin": { target: "http://localhost:8000", changeOrigin: true },
     },
   },
 });

@@ -72,4 +72,145 @@
   .progress-fill {
     @apply h-full rounded-full bg-brand-600 transition-all;
   }
+
+  /* ---------- Motion design system (Phase I) ----------
+     Pure CSS so we add zero runtime dependencies. Every animation is
+     disabled under `prefers-reduced-motion: reduce` (see bottom of file). */
+
+  /* Animated aurora gradient backdrop (slow, low-cost, GPU-friendly) */
+  .bg-aurora {
+    background: linear-gradient(
+      120deg,
+      #eef2ff 0%, #e0e7ff 25%, #f5f3ff 50%, #e0f2fe 75%, #eef2ff 100%
+    );
+    background-size: 300% 300%;
+    animation: aurora-pan 18s ease-in-out infinite alternate;
+  }
+  .dark .bg-aurora {
+    background: linear-gradient(
+      120deg,
+      #0b1020 0%, #131a33 25%, #1a1338 50%, #0d1b2a 75%, #0b1020 100%
+    );
+  }
+
+  /* Soft floating orbs / glow decorations */
+  .orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(48px);
+    opacity: 0.5;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .orb-a { background: #818cf8; animation: float-slow 12s ease-in-out infinite; }
+  .orb-b { background: #38bdf8; animation: float-slow 15s ease-in-out infinite reverse; }
+  .orb-c { background: #a78bfa; animation: float-slow 18s ease-in-out infinite; }
+
+  /* Entrance animations */
+  .anim-fade-up { animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .anim-fade-in { animation: fade-in 0.7s ease both; }
+  .anim-pop-in  { animation: pop-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .anim-slide-in { animation: slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+  /* Staggered reveal — apply .anim-fade-up/.anim-pop-in plus a delay util */
+  .stagger-1 { animation-delay: 0.06s; }
+  .stagger-2 { animation-delay: 0.12s; }
+  .stagger-3 { animation-delay: 0.18s; }
+  .stagger-4 { animation-delay: 0.24s; }
+  .stagger-5 { animation-delay: 0.30s; }
+  .stagger-6 { animation-delay: 0.36s; }
+  .stagger-7 { animation-delay: 0.42s; }
+  .stagger-8 { animation-delay: 0.48s; }
+
+  /* Interactive cards: gentle lift + shadow/border transition */
+  .card-interactive {
+    @apply transition-all duration-300 ease-out;
+  }
+  .card-interactive:hover {
+    @apply -translate-y-1 border-brand-300 shadow-lg dark:border-brand-700;
+  }
+  .card-interactive:focus-within {
+    @apply -translate-y-1 border-brand-400 shadow-md;
+  }
+
+  /* Polished CTA press feedback */
+  .btn-primary, .btn-ghost {
+    @apply transition-transform duration-150 ease-out active:scale-[0.97];
+  }
+
+  /* Chat bubble appearance */
+  .bubble-in { animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+  /* Toast slide/fade */
+  .toast-in { animation: slide-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+  /* Modal / dialog entrance */
+  .modal-in { animation: pop-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+  /* Skeleton shimmer (used by <Skeleton/>) */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-slate-200 dark:bg-slate-800;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg, transparent, rgba(255, 255, 255, 0.35), transparent
+    );
+    animation: shimmer 1.5s infinite;
+  }
+  .dark .skeleton::after {
+    background: linear-gradient(
+      90deg, transparent, rgba(255, 255, 255, 0.08), transparent
+    );
+  }
+
+  /* Subtle celebrate pulse for genuine achievements */
+  .celebrate { animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 }
+
+/* ---------- Keyframes ---------- */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes aurora-pan {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50%      { transform: translateY(-24px) translateX(12px); }
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ---------- Accessibility: honor reduced motion ----------
+   Animations must never block essential actions or cause discomfort. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .orb { animation: none !important; }
+}
+

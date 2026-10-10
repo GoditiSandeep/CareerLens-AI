@@ -22,6 +22,8 @@ class Job(Base):
     experience_label: Mapped[str] = mapped_column(String(60), default="Fresher")
     description: Mapped[str] = mapped_column(Text, default="")
     industry: Mapped[str] = mapped_column(String(120), default="Technology")
+    # True for seeded/demo listings (shown as "sample data" in the UI).
+    is_sample: Mapped[bool] = mapped_column(Boolean, default=False)
     posted_on: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )

@@ -15,6 +15,9 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(120))
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
+    # Authorization role. Public registration always creates "student";
+    # only the offline bootstrap script (scripts/create_admin.py) can create "admin".
+    role: Mapped[str] = mapped_column(String(20), default="student", index=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(

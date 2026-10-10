@@ -3,6 +3,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -170,4 +171,80 @@ export function formatDate(raw: string | null | undefined): string {
   const d = new Date(raw);
   if (Number.isNaN(d.getTime())) return raw;
   return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+// ---------- Motion helpers (Phase I) ----------
+
+/** True when the user prefers reduced motion; animations are skipped. */
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+/**
+ * Animated count-up for genuine numeric statistics. If the value is not a
+ * finite number (or reduced-motion is set) it renders the number directly —
+ * so it never implies motion for non-numeric data.
+ */
+export function CountUp({
+  value,
+  duration = 900,
+}: {
+  value: number | string;
+  duration?: number;
+}) {
+  const isNumeric = typeof value === "number" && Number.isFinite(value);
+  const [display, setDisplay] = useState<number>(isNumeric ? 0 : (value as number));
+
+  useEffect(() => {
+    if (!isNumeric) return;
+    if (prefersReducedMotion()) {
+      setDisplay(value as number);
+      return;
+    }
+    let raf = 0;
+    let start: number | null = null;
+    const target = value as number;
+    const tick = (ts: number) => {
+      if (start === null) start = ts;
+      const p = Math.min(1, (ts - start) / duration);
+      // easeOutCubic
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(target * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf); // clean up on unmount/value change
+  }, [value, isNumeric, duration]);
+
+  if (!isNumeric) return <>{value}</>;
+  return <>{display.toLocaleString()}</>;
+}
+
+/** Skeleton placeholder for genuine async loading states. */
+export function Skeleton({ className = "h-4 w-full" }: { className?: string }) {
+  return <div className={`skeleton ${className}`} aria-hidden />;
+}
+
+/**
+ * Reveal-on-mount wrapper. Adds a staggered fade-up entrance; purely
+ * decorative, and the children are always rendered (never gated behind the
+ * animation), so reduced-motion and no-JS users still see content.
+ */
+export function Reveal({
+  children,
+  delay = 0,
+  as: Tag = "div",
+  className = "",
+}: {
+  children: ReactNode;
+  delay?: number;
+  as?: React.ElementType;
+  className?: string;
+}) {
+  const stagger = delay > 0 ? ` stagger-${Math.min(8, Math.max(1, delay))}` : "";
+  return <Tag className={`anim-fade-up${stagger} ${className}`}>{children}</Tag>;
 }

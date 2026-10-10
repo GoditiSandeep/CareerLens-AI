@@ -33,6 +33,10 @@ htmlcov/
 # ---- Logs / scratch ----
 *.log
 smoke_*.txt
+*.pw
+.adm_pw_tmp
+*tmp*.txt
+secrets.txt
 
 env/
 ENV/

@@ -11,6 +11,10 @@ class ORMModel(BaseModel):
 
 # ---------- Auth ----------
 class RegisterRequest(BaseModel):
+    # NOTE: no `role` field exists here on purpose — registration can only ever
+    # create student accounts, and unknown extra body fields are ignored.
+    model_config = ConfigDict(extra="ignore")
+
     full_name: str = Field(min_length=2, max_length=120)
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
@@ -31,6 +35,7 @@ class UserOut(ORMModel):
     id: int
     full_name: str
     email: str
+    role: str = "student"
     is_demo: bool
     created_at: datetime
 
@@ -223,9 +228,9 @@ class JobOut(ORMModel):
     industry: str
     posted_on: Optional[datetime] = None
     is_active: bool = True
+    is_sample: bool = False
     match_score: float = 0.0
     saved: bool = False
-    is_active: bool
 
 
 class JobMatchOut(BaseModel):
@@ -538,3 +543,86 @@ class JobMatchResponse(BaseModel):
     why_match: list[str] = Field(default_factory=list)
     why_not_match: list[str] = Field(default_factory=list)
     what_to_improve: list[str] = Field(default_factory=list)
+
+
+# ---------- Admin (Phase B) ----------
+class AdminUserOut(ORMModel):
+    """Safe user projection for the admin dashboard — never includes
+    password hashes or tokens."""
+    id: int
+    full_name: str
+    email: str
+    role: str = "student"
+    is_active: bool = True
+    is_demo: bool = False
+    created_at: datetime
+
+
+class AdminUserListOut(BaseModel):
+    items: list[AdminUserOut]
+    total: int
+    page: int
+    page_size: int
+
+
+class AdminUserUpdate(BaseModel):
+    role: Optional[str] = Field(default=None, pattern="^(student|admin)$")
+    is_active: Optional[bool] = None
+
+
+class AdminCareerCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=150)
+    category: str = Field(default="Technology", max_length=60)
+    description: str = Field(default="", max_length=4000)
+    required_skills: dict[str, float] | list[str] = Field(default_factory=dict)
+    responsibilities: list[str] = Field(default_factory=list)
+    roadmap: list[dict] = Field(default_factory=list)
+    projects: list[str] = Field(default_factory=list)
+    interview_topics: list[str] = Field(default_factory=list)
+    certifications: list[str] = Field(default_factory=list)
+    salary_range: str = ""
+    demand_level: str = "High"
+    growth_potential: str = "High"
+
+
+class AdminCareerUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=2, max_length=150)
+    category: Optional[str] = Field(default=None, max_length=60)
+    description: Optional[str] = None
+    required_skills: Optional[dict[str, float] | list[str]] = None
+    responsibilities: Optional[list[str]] = None
+    roadmap: Optional[list[dict]] = None
+    projects: Optional[list[str]] = None
+    interview_topics: Optional[list[str]] = None
+    certifications: Optional[list[str]] = None
+    salary_range: Optional[str] = None
+    demand_level: Optional[str] = None
+    growth_potential: Optional[str] = None
+
+
+class AdminJobCreate(BaseModel):
+    title: str = Field(min_length=2, max_length=180)
+    company: str = Field(min_length=1, max_length=180)
+    location: str = "Remote"
+    work_mode: str = Field(default="remote", max_length=30)
+    salary: str = ""
+    job_type: str = Field(default="job", max_length=30)
+    skills: list[str] = Field(default_factory=list)
+    experience_label: str = "Fresher"
+    description: str = ""
+    industry: str = "Technology"
+    is_active: bool = True
+
+
+class AdminJobUpdate(BaseModel):
+    title: Optional[str] = Field(default=None, min_length=2, max_length=180)
+    company: Optional[str] = Field(default=None, min_length=1, max_length=180)
+    location: Optional[str] = None
+    work_mode: Optional[str] = None
+    salary: Optional[str] = None
+    job_type: Optional[str] = None
+    skills: Optional[list[str]] = None
+    experience_label: Optional[str] = None
+    description: Optional[str] = None
+    industry: Optional[str] = None
+    is_active: Optional[bool] = None

@@ -88,6 +88,7 @@ export interface User {
   id: number;
   full_name: string;
   email: string;
+  role: "student" | "admin";
   is_demo: boolean;
   created_at: string;
 }
@@ -135,6 +136,7 @@ export interface Career {
   certifications: string[];
   salary_range: string | null;
   demand_level: string | null;
+  growth_potential?: string | null;
   suitability?: number;
 }
 export interface Skill {
@@ -183,6 +185,8 @@ export interface Job {
   description: string;
   industry: string | null;
   posted_on: string | null;
+  is_sample?: boolean;
+  is_active?: boolean;
   match_score: number;
   saved: boolean;
 }
@@ -335,10 +339,85 @@ export interface Certification {
   skills: string[];
 }
 
+// ---- Admin (Phase B) ----
+export interface AdminStats {
+  users: { total: number; active: number; admins: number; new_last_7_days: number };
+  activity: Record<string, number>;
+  content: Record<string, number>;
+  recent_users: AdminUser[];
+  generated_at: string;
+}
+export interface AdminUser {
+  id: number;
+  full_name: string;
+  email: string;
+  role: "student" | "admin";
+  is_active: boolean;
+  is_demo: boolean;
+  created_at: string;
+}
+export interface AdminUserList {
+  items: AdminUser[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+export interface AdminSettings {
+  app_name: string;
+  debug: boolean;
+  seed_demo_data: boolean;
+  database_backend: string;
+  cors_origins: string[];
+  uploads: { max_size_mb: number; allowed_extensions: string[] };
+  ai: {
+    provider: string;
+    mode: string;
+    live_configured: boolean;
+    openai_key_present: boolean;
+    gemini_key_present: boolean;
+    note: string;
+  };
+  health: { status: string; api: string };
+  checked_at: string;
+}
+
 export const api = {
   get: <T>(path: string) => request<T>("GET", path),
   post: <T>(path: string, body?: unknown) => request<T>("POST", path, { body }),
   put: <T>(path: string, body?: unknown) => request<T>("PUT", path, { body }),
+  patch: <T>(path: string, body?: unknown) => request<T>("PATCH", path, { body }),
   del: <T>(path: string) => request<T>("DELETE", path),
   upload: <T>(path: string, form: FormData) => request<T>("POST", path, { form }),
+};
+
+// ---- Admin convenience wrappers (Phase B) ----
+// Thin, typed helpers over the protected /admin/* router. The backend is the
+// real security boundary; these only keep the UI code tidy.
+export const adminApi = {
+  stats: () => api.get<AdminStats>("/admin/stats"),
+  settings: () => api.get<AdminSettings>("/admin/settings"),
+
+  users: (params: { q?: string; role?: string; status?: string; page?: number; page_size?: number } = {}) => {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set("q", params.q);
+    if (params.role) qs.set("role", params.role);
+    if (params.status) qs.set("status", params.status);
+    qs.set("page", String(params.page ?? 1));
+    qs.set("page_size", String(params.page_size ?? 10));
+    return api.get<AdminUserList>(`/admin/users?${qs.toString()}`);
+  },
+  updateUser: (id: number, body: { role?: string; is_active?: boolean }) =>
+    api.patch<AdminUser>(`/admin/users/${id}`, body),
+
+  careers: () => api.get<Career[]>("/admin/careers"),
+  createCareer: (body: Record<string, unknown>) => api.post<Career>("/admin/careers", body),
+  updateCareer: (id: number, body: Record<string, unknown>) =>
+    api.patch<Career>(`/admin/careers/${id}`, body),
+  deleteCareer: (id: number) => api.del<{ deleted: number }>(`/admin/careers/${id}`),
+
+  jobs: () => api.get<Job[]>("/admin/jobs"),
+  createJob: (body: Record<string, unknown>) => api.post<Job>("/admin/jobs", body),
+  updateJob: (id: number, body: Record<string, unknown>) =>
+    api.patch<Job>(`/admin/jobs/${id}`, body),
+  deleteJob: (id: number) => api.del<{ deleted: number }>(`/admin/jobs/${id}`),
 };

@@ -23,6 +23,7 @@ const PRACTICE: NavItem[] = [
   { to: "/chat", label: "AI Mentor", icon: "✦" },
   { to: "/profile", label: "Profile & Settings", icon: "☰" },
 ];
+const ADMIN: NavItem = { to: "/admin", label: "Admin", icon: "⚙" };
 
 function linkClass({ isActive }: { isActive: boolean }) {
   return [
@@ -94,6 +95,17 @@ export default function Layout({ children }: { children: ReactNode }) {
             </NavLink>
           ))}
         </div>
+        {user?.role === "admin" && (
+          <div className="space-y-1">
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Manage
+            </p>
+            <NavLink key={ADMIN.to} to={ADMIN.to} className={linkClass} onClick={() => setOpen(false)}>
+              <span aria-hidden className="w-4 text-center">{ADMIN.icon}</span>
+              {ADMIN.label}
+            </NavLink>
+          </div>
+        )}
       </nav>
       <div className="border-t border-slate-200 px-4 py-4 dark:border-slate-800">
         <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -135,7 +147,8 @@ export default function Layout({ children }: { children: ReactNode }) {
               ☰
             </button>
             <span className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              {PRIMARY.concat(PRACTICE).find((i) => location.pathname.startsWith(i.to))?.label ??
+              {PRIMARY.concat(PRACTICE).concat(user?.role === "admin" ? [ADMIN] : [])
+                .find((i) => location.pathname.startsWith(i.to))?.label ??
                 "CareerLens AI"}
             </span>
           </div>

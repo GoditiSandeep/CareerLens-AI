@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import (
+    admin,
     auth,
     careers,
     dashboard,
@@ -61,3 +62,4 @@ app.include_router(roadmap.router)
 app.include_router(jobs.router)
 app.include_router(extras.router)  # also carries extras_chat routes
 app.include_router(practice.router)  # also carries practice_extra routes
+app.include_router(admin.router)  # admin-only dashboard API

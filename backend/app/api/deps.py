@@ -52,3 +52,20 @@ def get_current_user(
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 DbSession = Annotated[Session, Depends(get_db)]
+
+
+def get_current_admin(user: CurrentUser) -> User:
+    """Authorize the current user as an administrator.
+
+    This is the single backend enforcement point for every /admin route.
+    The frontend role check is convenience only — never the security boundary.
+    """
+    if user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator access required",
+        )
+    return user
+
+
+AdminUser = Annotated[User, Depends(get_current_admin)]

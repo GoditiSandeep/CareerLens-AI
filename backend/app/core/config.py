@@ -33,7 +33,6 @@ class Settings(BaseSettings):
     # Database — SQLite by default so the app runs with zero setup.
     # Set DATABASE_URL to a PostgreSQL URL to use PostgreSQL.
     DATABASE_URL: str = "sqlite:///./careerlens.db"
-
     # AI provider: mock | openai | gemini
     AI_PROVIDER: str = "mock"
     MOCK_AI_MODE: bool = True
@@ -56,6 +55,22 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def resolved_database_url(self) -> str:
+        """A CWD-independent database URL.
+
+        The default ``sqlite:///./careerlens.db`` is relative to the process
+        working directory, which caused the backend (run from ``backend/``) and
+        helper scripts (run from the repo root) to open *different* database
+        files. For the default SQLite URL we anchor the file under ``backend/``
+        so the path is stable no matter where the process starts. Explicit
+        ``DATABASE_URL`` values (including PostgreSQL) are returned unchanged.
+        """
+        url = self.DATABASE_URL
+        if url == "sqlite:///./careerlens.db":
+            return f"sqlite:///{(BACKEND_DIR / 'careerlens.db').as_posix()}"
+        return url
 
     @property
     def upload_dir(self) -> Path:

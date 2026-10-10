@@ -64,6 +64,7 @@ def seed_all(db: Session) -> dict[str, int | str]:
                 experience_label=j.get("experience_label", "Fresher"),
                 description=j.get("description", ""),
                 industry=j.get("industry", "Technology"),
+                is_sample=True,  # labelled as demo data in the UI
             ))
         db.commit()
     counts["jobs"] = db.query(Job).count()

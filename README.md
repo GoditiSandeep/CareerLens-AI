@@ -1,8 +1,12 @@
 # CareerLens AI
 
-An end-to-end **student career-guidance platform**: skills tracking, career roadmaps, job discovery, an application tracker, resume analysis, interview/aptitude/coding practice, project recommendations, achievements, and an AI mentor chat — with a FastAPI backend and a React + TypeScript frontend.
+**Discover. Prepare. Grow. Get Career-Ready.**
+
+An end-to-end **career-guidance and personal-growth platform** for people across education levels, professions, and career stages: skills tracking, career roadmaps, job/scholarship discovery, an application tracker, resume analysis, interview/aptitude/coding practice, project recommendations, achievements, certifications, and an AI mentor chat — with a FastAPI backend and a React + TypeScript frontend, plus a secure administrator dashboard.
 
 > Works out of the box with **no API keys**: the backend ships with a deterministic mock AI provider. OpenAI- or Gemini-compatible keys can be plugged in via environment variables when you want real model responses.
+
+**Owner:** Godithi Kiran Sri Sai Sandeep · **Contact:** goditisandeep@gmail.com · **Phone:** 8247336510
 
 ---
 
@@ -12,17 +16,19 @@ An end-to-end **student career-guidance platform**: skills tracking, career road
 |-----------|-------|
 | Backend   | Python, FastAPI, SQLAlchemy 2, Pydantic v2, JWT (PyJWT + bcrypt), SQLite by default (PostgreSQL optional), `pypdf`/`python-docx` resume parsing |
 | Frontend  | React 18, TypeScript, Vite 5, Tailwind CSS 3, React Router 6, Recharts |
-| Tooling   | pytest, `tsc --noEmit` type-check, stdlib-only smoke test, Docker / docker-compose |
+| Tooling   | pytest, `tsc --noEmit` type-check, stdlib-only smoke + admin integration tests, Docker / docker-compose |
+| Roles     | `student` (default for public sign-up) and `admin` (backend-enforced; never settable via public registration) |
 
 ## Repository layout
 
 ```
 CareerLens-AI/
-├── backend/            # FastAPI app (app/api, app/ai, app/models, app/schemas, app/seed, tests)
+├── backend/            # FastAPI app (app/api, app/ai, app/models, app/schemas, app/cli, tests)
 ├── frontend/           # Vite React SPA (src/pages, src/components, src/lib/api.ts)
-├── scripts/            # smoke_test.py — end-to-end HTTP journey check
+├── scripts/            # smoke_test.py + admin_integration_test.py
 ├── docker-compose.yml  # postgres + backend + frontend
 ├── .env.example        # all supported environment variables (documented)
+├── PROGRESS.md         # verified vs. remaining implementation checklist
 └── README.md
 ```
 
@@ -38,17 +44,44 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1          # if you use a venv
 pip install -r requirements.txt
 
-# Optional: SQLite is the default, but you can customize:
+# Optional: SQLite is the default. Copy the example env if you want to change settings.
 Copy-Item ..\.env.example .\.env      # backend reads backend\.env (pydantic-settings)
 
 python -m uvicorn app.main:app --reload --port 8000
 ```
 
-On startup the app creates `careerlens.db`, and (with `SEED_DEMO_DATA=true`, the default) seeds careers, jobs, skills, aptitude/coding questions, projects and a demo account:
+On startup the app creates the database at **`backend\careerlens.db`** (the default `sqlite:///./careerlens.db` is anchored under `backend\` so the server and the helper scripts always open the same file regardless of the working directory). With `SEED_DEMO_DATA=true` (the default) it seeds careers, jobs, skills, aptitude/coding questions, projects and a demo account:
 
-**Demo login:** `demo@careerlens.ai` / `Demo@12345`
+**Demo login:** `demo@careerlens.ai` / `Demo@12345` (public demo data only — never a real credential)
 
 Verify: <http://localhost:8000/health> and interactive docs at <http://localhost:8000/docs>.
+
+### 3. Create the administrator (one time, secure)
+
+Public registration **always** creates student accounts — there is no admin sign-up. Create your administrator with the bundled CLI. It prompts for the password with a **hidden** terminal prompt (it is never echoed, logged, or stored in source/Git — only a bcrypt hash is saved):
+
+```powershell
+cd c:\Users\admin\Desktop\CareerLens-AI\backend
+python -m app.cli.create_admin
+# Admin login email [goditisandeep@gmail.com]:
+# Admin full name [Godithi Sandeep]:
+# Admin password (hidden): ****
+# Confirm password: ****
+```
+
+Or pass the email/name as arguments (the password is still prompted securely):
+
+```powershell
+python -m app.cli.create_admin --email goditisandeep@gmail.com --name "Godithi Sandeep"
+python -m app.cli.create_admin --check          # report admin status without changes
+```
+
+Safety behaviour:
+- **Never** promotes an existing student account or resets an existing admin password. If the email already exists as a student it stops and prints safe recovery steps.
+- The password must be ≥ 8 characters and must not be the email/local-part.
+- Re-running is idempotent — an existing admin is left untouched.
+
+Then sign in at <http://localhost:5173/login> and open the admin dashboard at <http://localhost:5173/admin>.
 
 ### 2. Frontend (port 5173)
 
@@ -85,7 +118,7 @@ Copy `.env.example` to `backend/.env` and edit as needed. Highlights:
 ## Tests, type-check and smoke test
 
 ```powershell
-# Backend — pytest (15 tests: auth, health, skills, roadmap, jobs, flows)
+# Backend — pytest (31 tests: auth, admin roles/authorization, health, skills, roadmap, jobs, flows)
 cd c:\Users\admin\Desktop\CareerLens-AI\backend
 python -m pytest tests/ -q
 
@@ -109,6 +142,17 @@ It registers a fresh user and walks the full journey — login, dashboard, profi
 
 > Note: emails must use a non-reserved TLD (the script uses `@example.com`), and query-string spaces are percent-encoded.
 
+### Admin integration test (stdlib only)
+
+With the backend running and at least one administrator created:
+
+```powershell
+cd c:\Users\admin\Desktop\CareerLens-AI
+python scripts/admin_integration_test.py
+```
+
+It creates a temporary admin, signs in, verifies every `/admin/*` endpoint returns **200** with backend-backed data, then registers a student and confirms the student is **blocked (403)** from every admin API and cannot self-promote — finally cleaning up its test rows. Prints `ALL ADMIN INTEGRATION CHECKS PASSED` on success.
+
 ## Docker
 
 ```powershell
@@ -121,11 +165,31 @@ docker compose up --build
 
 For Docker, PostgreSQL is the default; local dev keeps the zero-setup SQLite fallback.
 
-## Feature map (Phases A–F)
+## Feature map (Phases A–M)
 
 - **A – Backend:** JWT auth (register/login/me), profile + onboarding, skills + gap analysis, roadmap generation, jobs (search, match %, save, apply), applications Kanban, resume upload/parsing/scoring/job-match, interviews, aptitude tests, coding practice, projects, achievements, certifications, AI chat + history, dashboard/readiness, profile export — all with OpenAPI docs.
-- **B – Frontend pages:** Dashboard, Careers, Skills, Roadmap, Jobs, Applications (drag-style Kanban), Resumes, Practice (interview/aptitude/coding tabs), Projects, Achievements, Chat, Profile/Landing/Login — dark-themed, responsive, typed against `frontend/src/lib/api.ts`.
-- **F – Packaging:** Dockerfiles, docker-compose, `.env.example`, this README, pytest + type-check + smoke test all green.
+- **B – Frontend pages:** Landing, About, Contact, Privacy, Terms, Dashboard, Careers, Skills, Roadmap, Jobs, Applications (drag-style Kanban), Resumes, Practice (interview/aptitude/coding tabs), Projects, Achievements, Chat, Profile, and the admin **Admin dashboard** (`/admin`) — responsive, light/dark themed, typed against `frontend/src/lib/api.ts`.
+- **Admin dashboard (`/admin`):** overview analytics, user management (search/filter/paginate, safe role & status changes with self-lockout protection), career & opportunity content CRUD (sample listings clearly labelled), and platform/AI settings that expose provider status without revealing credentials.
+- **M – Packaging:** Dockerfiles, docker-compose, `.env.example`, this README, PROGRESS.md, pytest + type-check + smoke + admin-integration tests all green.
+
+### API surface (all under `http://localhost:8000`)
+
+| Area | Representative endpoints |
+|------|--------------------------|
+| Health | `GET /health` |
+| Auth | `POST /auth/register`, `POST /auth/login`, `GET /auth/me` |
+| Profile | `GET/PUT /profile`, `POST /profile/onboarding`, `GET /profile/export` |
+| Dashboard/Readiness | `GET /dashboard`, `GET /readiness` |
+| Careers & skills | `GET /careers/recommendations`, `GET /skills/gaps` |
+| Roadmap | `GET /roadmap`, `POST /roadmap/generate`, `PATCH /roadmap/items/{id}` |
+| Jobs & applications | `GET /jobs`, `GET /applications`, `POST/PATCH/DELETE /applications/{id}` |
+| Resume | `POST /resumes/upload`, `POST /resumes/{id}/analyze`, `GET /resumes/{id}/job-match` |
+| Practice | `GET /interviews/*`, `GET /aptitude/*`, `GET /coding/*` |
+| Projects / growth | `GET /projects/*`, `GET /achievements`, `GET /certifications` |
+| AI mentor | `POST /ai/chat`, `GET /ai/chat/history` |
+| **Admin** (role required) | `GET /admin/stats`, `GET/PATCH /admin/users`, `GET /admin/settings`, `POST/GET/PATCH/DELETE /admin/careers`, `POST/GET/PATCH/DELETE /admin/jobs` |
+
+The admin endpoints are enforced on the **backend**: a student token receives `403`, and missing/invalid auth receives `401`.
 
 ## Troubleshooting
 

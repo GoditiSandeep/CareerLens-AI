@@ -1,0 +1,1 @@
+"""Offline admin bootstrap CLI (no HTTP exposure)."""
