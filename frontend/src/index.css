@@ -169,9 +169,218 @@
 
   /* Subtle celebrate pulse for genuine achievements */
   .celebrate { animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+  /* Gradient headline text (deep navy → indigo → cyan/violet) */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      100deg,
+      #1e3a8a 0%, #4f46e5 35%, #0891b2 70%, #7c3aed 100%
+    );
+    background-size: 200% auto;
+    animation: aurora-pan 10s ease-in-out infinite alternate;
+  }
+  .dark .text-gradient {
+    background-image: linear-gradient(
+      100deg,
+      #93c5fd 0%, #a5b4fc 35%, #67e8f9 70%, #c4b5fd 100%
+    );
+  }
+
+  /* Animated underline sweep for section eyebrows */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-700 shadow-sm backdrop-blur dark:border-brand-800 dark:bg-slate-900/70 dark:text-brand-300;
+  }
+
+  /* Slow spin for the orbit ring decoration */
+  .spin-slow { animation: spin 26s linear infinite; }
+
+  /* Pulse-glow for live/hero accent dot */
+  .pulse-dot {
+    animation: pulse-glow 2.4s ease-in-out infinite;
+  }
+
+  /* Staggered entrance for cards/grid items (delay set inline per item) */
+  .animate-rise { animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .animate-fade  { animation: fade-in 0.4s ease-out both; }
+
+  /* Selectable filter chips (career pickers, comparison toggles) */
+  .chip {
+    @apply rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-all duration-200 ease-out hover:border-brand-400 hover:text-brand-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-brand-500 dark:hover:text-brand-200;
+  }
+  .chip:focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 dark:ring-offset-slate-900;
+  }
+  .chip-active {
+    @apply border-brand-500 bg-brand-50 text-brand-700 shadow-sm dark:border-brand-400 dark:bg-brand-900/40 dark:text-brand-200;
+  }
+
+  /* ============================================================
+     NEXT-GEN VISUAL PRIMITIVES (Phase B)
+     All decorative, GPU-friendly, and neutralised under
+     `prefers-reduced-motion` by the global rule at file bottom.
+     ============================================================ */
+
+  /* Glassmorphism surfaces: frosted, layered, with a soft top highlight. */
+  .glass {
+    @apply rounded-xl border border-white/40 bg-white/70 shadow-lg shadow-slate-900/5 backdrop-blur-xl backdrop-saturate-150 dark:border-white/10 dark:bg-slate-900/60;
+  }
+  .glass-strong {
+    @apply rounded-xl border border-white/50 bg-white/85 shadow-xl shadow-brand-900/10 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/80;
+  }
+  /* Hairline top highlight that reads as a light source on glass. */
+  .glass-sheen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 42%);
+    opacity: 0.9;
+  }
+  .dark .glass-sheen::before {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 42%);
+  }
+
+  /* Card with an ambient coloured glow that intensifies on hover. */
+  .card-glow {
+    @apply relative transition-all duration-300 ease-out;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 30px -12px rgba(79, 70, 229, 0.25);
+  }
+  .card-glow:hover {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 18px 50px -14px rgba(79, 70, 229, 0.45);
+  }
+
+  /* Animated gradient border via a conic gradient that slowly rotates.
+     Uses a padding-box/border-box trick so the centre stays transparent. */
+  .animated-border {
+    position: relative;
+    background-clip: padding-box;
+    border: 1px solid transparent;
+  }
+  .animated-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--border-angle, 0deg),
+      #6366f1, #22d3ee, #a78bfa, #6366f1
+    );
+    animation: border-spin 6s linear infinite;
+  }
+
+  /* Moving sheen sweep for primary CTAs on hover. */
+  .shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+      100deg, transparent, rgba(255, 255, 255, 0.45), transparent
+    );
+    transform: skewX(-18deg);
+    pointer-events: none;
+  }
+  .shine:hover::after {
+    animation: sheen-sweep 0.9s ease-out;
+  }
+
+  /* Soft glow text for hero accents (legible contrast preserved). */
+  .text-glow {
+    text-shadow: 0 0 24px rgba(99, 102, 241, 0.35);
+  }
+  .dark .text-glow {
+    text-shadow: 0 0 28px rgba(129, 140, 248, 0.5);
+  }
+
+  /* Perspective grid floor for hero backdrops. */
+  .hero-grid {
+    background-image:
+      linear-gradient(to right, rgba(99, 102, 241, 0.14) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(99, 102, 241, 0.14) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 100%);
+    animation: grid-drift 22s linear infinite;
+  }
+
+  /* Gentle continuous float for decorative abstract shapes. */
+  .float-y { animation: float-y 6s ease-in-out infinite; }
+  .float-y-slow { animation: float-y 9s ease-in-out infinite; }
+
+  /* 3D tilt scene — the child element rotates via pointer-driven inline style. */
+  .tilt-scene { perspective: 900px; }
+  .tilt {
+    transform-style: preserve-3d;
+    transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+    will-change: transform;
+  }
+
+  /* Scroll-triggered reveal. Starts slightly down + transparent; `.in` (added
+     by the IntersectionObserver wrapper) slides it into place. If JS never
+     runs, `.no-js` fallback below keeps everything visible. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Animated active-nav indicator (a sliding pill behind the label). */
+  .nav-glow {
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.35), 0 8px 24px -10px rgba(99, 102, 241, 0.8);
+  }
+
+  /* Route transition wrapper — a soft fade+rise as pages mount. */
+  .route-enter {
+    animation: fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+/* ============================================================
+   Phase B keyframes
+   ============================================================ */
+@keyframes border-spin {
+  to { --border-angle: 360deg; }
+}
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes sheen-sweep {
+  0%   { left: -120%; }
+  100% { left: 130%; }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+@keyframes grid-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 44px 44px; }
 }
 
 /* ---------- Keyframes ---------- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.5); }
+  50%      { opacity: 0.75; box-shadow: 0 0 0 6px rgba(56, 189, 248, 0); }
+}
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -199,6 +408,13 @@
 @keyframes shimmer {
   100% { transform: translateX(100%); }
 }
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30%            { transform: translateY(-4px); opacity: 1; }
+}
+.typing-dot {
+  animation: typing-bounce 1.1s ease-in-out infinite;
+}
 
 /* ---------- Accessibility: honor reduced motion ----------
    Animations must never block essential actions or cause discomfort. */
@@ -207,8 +423,10 @@
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
   .orb { animation: none !important; }

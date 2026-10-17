@@ -76,8 +76,8 @@ export default function Skills() {
           )}
           {skills && skills.length > 0 && (
             <div className="space-y-4">
-              {skills.map((s) => (
-                <div key={s.id} className="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+              {skills.map((s, idx) => (
+                <div key={s.id} className={`anim-fade-up stagger-${Math.min(8, (idx % 8) + 1)} rounded-lg border border-slate-200 p-3 transition-colors hover:border-brand-300 dark:border-slate-800 dark:hover:border-brand-700`}>
                   <div className="mb-2 flex items-center justify-between">
                     <div>
                       <span className="font-medium text-slate-800 dark:text-slate-200">{s.name}</span>

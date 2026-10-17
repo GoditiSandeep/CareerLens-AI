@@ -103,8 +103,8 @@ export default function Careers() {
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
-        {filtered.map((c) => (
-          <div key={c.id} className="card">
+        {filtered.map((c, idx) => (
+          <div key={c.id} className={`card card-interactive anim-fade-up stagger-${Math.min(8, (idx % 8) + 1)}`}>
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-semibold text-slate-900 dark:text-white">{c.name}</p>
@@ -148,7 +148,7 @@ export default function Careers() {
                 <DetailList title="Certifications" items={c.certifications} />
                 {gapsLoading && <p className="muted">Analyzing your skill gaps…</p>}
                 {gaps && gaps.target === c.name && (
-                  <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-800/60">
+                  <div className="anim-fade-up rounded-lg bg-slate-50 p-4 dark:bg-slate-800/60">
                     <p className="section-title mb-2">Gap analysis vs {gaps.target}</p>
                     {gaps.gaps.slice(0, 8).map((g) => (
                       <div key={g.name} className="mb-2">

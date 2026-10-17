@@ -38,7 +38,7 @@ export default function Login() {
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 font-bold text-white">C</span>
           <span className="text-lg font-bold text-slate-900 dark:text-white">CareerLens AI</span>
         </Link>
-        <div className="card">
+        <div className="card anim-fade-up">
           <h1 className="page-title">Welcome back</h1>
           <p className="page-sub">Sign in to continue your career journey.</p>
           {error && <div className="mt-4"><ErrorBanner message={error} /></div>}

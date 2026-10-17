@@ -127,11 +127,11 @@ export default function Applications() {
 
       {apps && apps.length > 0 && (
         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-          {STATUSES.map((col) => {
+          {STATUSES.map((col, colIdx) => {
             const items = apps.filter((a) => a.status === col.key);
             return (
               <div key={col.key}
-                className={`rounded-xl border-t-4 bg-slate-100 p-3 dark:bg-slate-900 ${col.cls}`}>
+                className={`anim-fade-up stagger-${Math.min(8, colIdx + 1)} rounded-xl border-t-4 bg-slate-100 p-3 dark:bg-slate-900 ${col.cls}`}>
                 <div className="mb-2 flex items-center justify-between">
                   <p className="text-xs font-bold uppercase tracking-wide text-slate-600 dark:text-slate-300">
                     {col.label}
@@ -140,7 +140,7 @@ export default function Applications() {
                 </div>
                 <div className="space-y-2">
                   {items.map((a) => (
-                    <div key={a.id} className="card !p-3">
+                    <div key={a.id} className="card anim-pop-in !p-3">
                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{a.role}</p>
                       <p className="text-xs text-slate-500">{a.company}</p>
                       {a.deadline && (

@@ -1,4 +1,4 @@
-"""Core API coverage: dashboard, careers, skills, jobs, roadmap, practice."""
+"""Core API coverage: dashboard, careers, skills, jobs, roadmap, practice, projects."""
 
 
 def test_dashboard(client, auth_headers):
@@ -96,3 +96,19 @@ def test_chat(client, auth_headers):
         "message": "What should I learn next?"})
     assert r.status_code == 200
     assert len(r.json()["reply"]) > 20
+
+
+def test_project_recommendations_shape(client, auth_headers):
+    """The Projects page renders features/checklists — the API must send them."""
+    r = client.get("/projects/recommendations", headers=auth_headers)
+    assert r.status_code == 200
+    ideas = r.json()
+    assert len(ideas) >= 1
+    first = ideas[0]
+    for key in (
+        "title", "technologies", "features", "github_checklist",
+        "resume_value", "learning_outcomes", "estimated_duration",
+    ):
+        assert key in first, f"missing field: {key}"
+    assert isinstance(first["features"], list)
+    assert isinstance(first["github_checklist"], list)

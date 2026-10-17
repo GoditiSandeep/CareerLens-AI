@@ -218,9 +218,9 @@ function InterviewPanel({ notify }: { notify: Notify }) {
             <EmptyState title="No sessions yet" hint="Start your first mock interview on the left." />
           )}
           <div className="space-y-2">
-            {sessions?.map((s) => (
+            {sessions?.map((s, idx) => (
               <div key={s.id}
-                className="flex items-center justify-between rounded-lg border border-slate-200 p-3 text-sm dark:border-slate-800">
+                className={`anim-fade-up stagger-${Math.min(8, (idx % 8) + 1)} flex items-center justify-between rounded-lg border border-slate-200 p-3 text-sm transition-colors hover:border-brand-300 dark:border-slate-800 dark:hover:border-brand-700`}>
                 <div>
                   <p className="font-medium text-slate-800 dark:text-slate-200">{s.role}</p>
                   <p className="text-xs text-slate-500">
@@ -403,7 +403,7 @@ function CodingPanel({ notify }: { notify: Notify }) {
         {error && <ErrorBanner message={error} />}
         {!questions && !error && <Loader />}
         <div className="space-y-2">
-          {questions?.map((q) => {
+          {questions?.map((q, idx) => {
             const prev = attempts[q.id];
             return (
               <button key={q.id}
@@ -412,9 +412,9 @@ function CodingPanel({ notify }: { notify: Notify }) {
                   setCode(starter(q));
                   setResult(null);
                 }}
-                className={`w-full rounded-lg border p-3 text-left text-sm ${selected?.id === q.id
+                className={`w-full rounded-lg border p-3 text-left text-sm transition-colors anim-fade-up stagger-${Math.min(8, (idx % 8) + 1)} ${selected?.id === q.id
                   ? "border-brand-500 bg-brand-50 dark:bg-brand-950"
-                  : "border-slate-200 dark:border-slate-800"}`}>
+                  : "border-slate-200 hover:border-brand-300 dark:border-slate-800 dark:hover:border-brand-700"}`}>
                 <span className="font-medium text-slate-800 dark:text-slate-200">{q.title}</span>
                 <span className="mt-1 flex gap-1.5">
                   <span className="badge-slate">{q.difficulty}</span>

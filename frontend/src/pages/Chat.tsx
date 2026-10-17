@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { api, type ChatMessage } from "../lib/api";
-import { ErrorBanner, Loader, useToast } from "../components/ui";
+import { ErrorBanner, Loader, TypingDots, useToast } from "../components/ui";
 
 const SUGGESTIONS = [
   "What should I learn first for backend development?",
@@ -101,7 +101,7 @@ export default function Chat() {
         <div className="space-y-4">
           {history?.map((m) => (
             <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+              <div className={`bubble-in max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                 m.role === "user"
                   ? "bg-brand-600 text-white"
                   : "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200"
@@ -113,13 +113,7 @@ export default function Chat() {
               </div>
             </div>
           ))}
-          {sending && (
-            <div className="flex justify-start">
-              <div className="rounded-2xl bg-slate-100 px-4 py-2.5 text-sm text-slate-500 dark:bg-slate-800">
-                Thinking…
-              </div>
-            </div>
-          )}
+          {sending && <TypingDots />}
           <div ref={bottomRef} />
         </div>
       </div>

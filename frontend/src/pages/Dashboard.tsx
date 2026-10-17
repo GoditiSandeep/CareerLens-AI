@@ -5,7 +5,10 @@ import {
   ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { api, type DashboardData } from "../lib/api";
-import { ErrorBanner, Loader, StatCard, useToast } from "../components/ui";
+import {
+  AnimatedRing, CountUp, ErrorBanner, GlassCard, GradientButton, Loader,
+  ScrollReveal, StatCard, useToast,
+} from "../components/ui";
 
 const PIE_COLORS = ["#4f46e5", "#10b981", "#f59e0b", "#f43f5e", "#06b6d4", "#8b5cf6", "#84cc16", "#64748b"];
 
@@ -37,24 +40,44 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="page-title">Your dashboard</h1>
-          <p className="page-sub">
-            Live readiness snapshot — every number comes from your actual profile and activity.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Link to="/roadmap" className="btn-ghost">My roadmap</Link>
-          <Link to="/chat" className="btn-primary">Ask AI mentor</Link>
-        </div>
-      </div>
+      <ScrollReveal as="section">
+        <GlassCard strong className="p-5 sm:p-7">
+          <div className="grid items-center gap-6 md:grid-cols-[auto,1fr]">
+            <div className="flex justify-center">
+              <AnimatedRing
+                value={data.career_readiness}
+                size={148}
+                thickness={12}
+                label="Readiness"
+                color="#22d3ee"
+              />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-cyan-500">
+                Career readiness index
+              </p>
+              <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+                Welcome back — here's your{" "}
+                <span className="text-gradient">live snapshot</span>.
+              </h1>
+              <p className="mt-2 max-w-xl text-sm text-slate-600 dark:text-slate-400">
+                Every number below is computed from your actual profile and
+                activity — skills, projects, resumes and interview practice.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <GradientButton href="/roadmap">Explore my roadmap</GradientButton>
+                <Link to="/chat" className="btn-ghost">Ask AI mentor</Link>
+              </div>
+            </div>
+          </div>
+        </GlassCard>
+      </ScrollReveal>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Career readiness" value={`${data.career_readiness.toFixed(0)}%`} hint="Overall index" />
-        <StatCard label="Skill score" value={`${data.skill_score.toFixed(0)}%`} hint="Vs target roles" accent="green" />
-        <StatCard label="Resume ATS" value={`${data.ats_score.toFixed(0)}%`} hint={data.ats_score ? "Latest analysis" : "Upload a resume"} accent="amber" />
-        <StatCard label="Interview readiness" value={`${data.interview_score.toFixed(0)}%`} hint="Practice sessions" accent="rose" />
+        <ScrollReveal delay={1}><StatCard label="Career readiness" value={data.career_readiness} suffix="%" hint="Overall index" /></ScrollReveal>
+        <ScrollReveal delay={2}><StatCard label="Skill score" value={data.skill_score} suffix="%" hint="Vs target roles" accent="green" /></ScrollReveal>
+        <ScrollReveal delay={3}><StatCard label="Resume ATS" value={data.ats_score} suffix="%" hint={data.ats_score ? "Latest analysis" : "Upload a resume"} accent="amber" /></ScrollReveal>
+        <ScrollReveal delay={4}><StatCard label="Interview readiness" value={data.interview_score} suffix="%" hint="Practice sessions" accent="rose" /></ScrollReveal>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -85,7 +108,7 @@ export default function Dashboard() {
           {data.next_actions?.length ? (
             <ul className="space-y-3">
               {data.next_actions.map((a, i) => (
-                <li key={i} className="flex gap-3 text-sm">
+                <li key={i} className={`anim-fade-up stagger-${Math.min(8, i + 1)} flex gap-3 text-sm`}>
                   <span className="badge-brand !px-2">{i + 1}</span>
                   <span className="text-slate-700 dark:text-slate-300">{a}</span>
                 </li>
@@ -101,19 +124,19 @@ export default function Dashboard() {
           <p className="section-title mb-3">Activity</p>
           <div className="grid grid-cols-2 gap-3 text-center">
             <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
-              <p className="text-2xl font-bold text-brand-600">{data.total_applications}</p>
+              <p className="text-2xl font-bold text-brand-600"><CountUp value={data.total_applications} /></p>
               <p className="text-xs text-slate-500">Applications</p>
             </div>
             <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
-              <p className="text-2xl font-bold text-emerald-600">{data.saved_jobs}</p>
+              <p className="text-2xl font-bold text-emerald-600"><CountUp value={data.saved_jobs} /></p>
               <p className="text-xs text-slate-500">Saved jobs</p>
             </div>
             <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
-              <p className="text-2xl font-bold text-amber-600">{data.profile_completeness.toFixed(0)}%</p>
+              <p className="text-2xl font-bold text-amber-600"><CountUp value={Math.round(data.profile_completeness)} /><span className="text-base">%</span></p>
               <p className="text-xs text-slate-500">Profile complete</p>
             </div>
             <div className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
-              <p className="text-2xl font-bold text-violet-600">{data.learning_progress.toFixed(0)}%</p>
+              <p className="text-2xl font-bold text-violet-600"><CountUp value={Math.round(data.learning_progress)} /><span className="text-base">%</span></p>
               <p className="text-xs text-slate-500">Roadmap progress</p>
             </div>
           </div>

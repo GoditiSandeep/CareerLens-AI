@@ -109,7 +109,7 @@ export default function Profile() {
       {!profile && !error && <Loader label="Loading profile…" />}
 
       {profile && (
-        <form onSubmit={save} className="card space-y-4">
+        <form onSubmit={save} className="card anim-fade-up space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 dark:border-slate-800">
             <div>
               <p className="section-title">{user?.full_name}</p>

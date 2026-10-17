@@ -499,6 +499,108 @@ class ProjectOut(BaseModel):
     category: str = "web"
     technologies: list[str] = Field(default_factory=list)
     problem_statement: str = ""
+    # Detail fields rendered by the frontend Projects page (feature checklists,
+    # GitHub checklist, resume value, etc.). Defaults keep lean seed entries
+    # valid while the full shape reaches the UI.
+    features: list[str] = Field(default_factory=list)
+    learning_outcomes: list[str] = Field(default_factory=list)
+    estimated_duration: str = ""
+    resume_value: str = ""
+    github_checklist: list[str] = Field(default_factory=list)
+
+
+# ---------- AI Career Twin ----------
+class CareerTwinUpdate(BaseModel):
+    work_style: Optional[str] = Field(default=None, max_length=30)
+    experience_level: Optional[str] = Field(default=None, max_length=30)
+    primary_goal: Optional[str] = Field(default=None, max_length=200)
+    strengths: Optional[list[str]] = None
+    interests: Optional[list[str]] = None
+    focus_areas: Optional[list[str]] = None
+    # Consent flags are only updated when explicitly provided.
+    personalization_consent: Optional[bool] = None
+    analytics_consent: Optional[bool] = None
+
+
+class CareerTwinOut(ORMModel):
+    id: int
+    work_style: Optional[str]
+    experience_level: Optional[str]
+    primary_goal: Optional[str]
+    strengths: str
+    interests: str
+    focus_areas: str
+    personalization_consent: bool
+    analytics_consent: bool
+    snapshot: str
+    snapshot_score: float
+    snapshot_at: Optional[datetime]
+    updated_at: datetime
+
+
+# ---------- Adaptive Growth Planner ----------
+class PlannerSettingsUpdate(BaseModel):
+    target_role: Optional[str] = Field(default=None, max_length=150)
+    goal_deadline: Optional[date] = None
+    hours_per_week: Optional[float] = Field(default=None, ge=1, le=80)
+    study_days: Optional[list[int]] = None  # weekday ints 0=Mon..6=Sun
+
+
+class PlannerSettingsOut(ORMModel):
+    id: int
+    target_role: Optional[str]
+    goal_deadline: Optional[date]
+    hours_per_week: float
+    study_days: str
+
+
+class PlannerTaskCreate(BaseModel):
+    title: str = Field(min_length=2, max_length=200)
+    category: str = "learning"
+    target_date: Optional[date] = None
+    estimated_minutes: Optional[int] = Field(default=60, ge=5, le=600)
+    is_milestone: Optional[bool] = False
+    skill_tag: Optional[str] = Field(default=None, max_length=120)
+    notes: Optional[str] = None
+    priority: Optional[int] = Field(default=None, ge=1, le=3)
+
+
+class PlannerTaskUpdate(BaseModel):
+    title: Optional[str] = Field(default=None, min_length=2, max_length=200)
+    category: Optional[str] = None
+    target_date: Optional[date] = None
+    estimated_minutes: Optional[int] = Field(default=None, ge=5, le=600)
+    status: Optional[str] = None
+    is_milestone: Optional[bool] = None
+    skill_tag: Optional[str] = None
+    notes: Optional[str] = None
+    priority: Optional[int] = Field(default=None, ge=1, le=3)
+
+
+class PlannerTaskOut(ORMModel):
+    id: int
+    title: str
+    category: str
+    target_date: Optional[date]
+    estimated_minutes: int
+    priority: int
+    status: str
+    is_milestone: bool
+    skill_tag: Optional[str]
+    notes: Optional[str]
+    completed_at: Optional[datetime]
+    created_at: datetime
+
+
+class PlannerWeekReview(BaseModel):
+    week_start: date
+    completed: int
+    skipped: int
+    pending: int
+    minutes_planned: int
+    minutes_completed: int
+    suggestions: list[str]
+
     features: list[str] = Field(default_factory=list)
     learning_outcomes: list[str] = Field(default_factory=list)
     estimated_duration: str = "2-3 weeks"

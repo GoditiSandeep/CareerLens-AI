@@ -17,7 +17,7 @@ export default function Privacy() {
         </nav>
       </header>
 
-      <main className="mx-auto w-full max-w-3xl px-4 py-10">
+      <main className="anim-fade-up mx-auto w-full max-w-3xl px-4 py-10">
         <span className="badge-brand mb-3">Privacy</span>
         <h1 className="page-title">Privacy summary</h1>
         <p className="page-sub mt-2">

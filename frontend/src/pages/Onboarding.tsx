@@ -67,7 +67,7 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-10 dark:bg-slate-950">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-6 flex items-center gap-3">
+        <div className="mb-6 flex items-center gap-3 anim-fade-up">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 font-bold text-white">C</span>
           <div>
             <p className="font-bold text-slate-900 dark:text-white">Let's set up your profile</p>
@@ -78,7 +78,7 @@ export default function Onboarding() {
           <div className="progress-fill" style={{ width: step === 1 ? "50%" : "100%" }} />
         </div>
         {error && <ErrorBanner message={error} />}
-        <form onSubmit={submit} className="card space-y-5">
+        <form key={step} onSubmit={submit} className="card space-y-5 anim-fade-up">
           {step === 1 && (
             <>
               <div>
@@ -137,7 +137,7 @@ export default function Onboarding() {
                 </div>
                 <div className="space-y-3">
                   {skills.map((s, i) => (
-                    <div key={i} className="flex items-center gap-3">
+                    <div key={i} className={`flex items-center gap-3 anim-fade-up stagger-${Math.min(8, i + 1)}`}>
                       <input className="input !w-2/5" placeholder="Skill name" value={s.name}
                         onChange={(e) => updateSkill(i, { name: e.target.value })} />
                       <input type="range" min={0} max={100} className="flex-1 accent-brand-600"

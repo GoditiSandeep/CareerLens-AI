@@ -22,6 +22,9 @@ from app.models.content import (
     CodingQuestion,
     CodingAttempt,
 )
+from app.models.growth import PlannerSetting, PlannerTask
+from app.models.quest import QuestEvent
+from app.models.twin import CareerTwin, TwinSnapshot
 
 __all__ = [
     "User",
@@ -46,4 +49,12 @@ __all__ = [
     "AptitudeAttempt",
     "CodingQuestion",
     "CodingAttempt",
+    # Adaptive Growth Planner
+    "PlannerSetting",
+    "PlannerTask",
+    # Career Quest
+    "QuestEvent",
+    # AI Career Twin
+    "CareerTwin",
+    "TwinSnapshot",
 ]

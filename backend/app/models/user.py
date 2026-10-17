@@ -57,6 +57,24 @@ class User(Base):
     coding_attempts: Mapped[list["CodingAttempt"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
+    # Adaptive Growth Planner
+    planner_settings: Mapped[Optional["PlannerSetting"]] = relationship(
+        back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )
+    planner_tasks: Mapped[list["PlannerTask"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    # Career Quest gamification ledger
+    quest_events: Mapped[list["QuestEvent"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    # AI Career Twin
+    career_twin: Mapped[Optional["CareerTwin"]] = relationship(
+        back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )
+    twin_snapshots: Mapped[list["TwinSnapshot"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class StudentProfile(Base):

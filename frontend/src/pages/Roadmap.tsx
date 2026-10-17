@@ -141,17 +141,26 @@ export default function Roadmap() {
             </div>
           </div>
           <div className="space-y-3">
-            {current.items.map((item) => (
-              <div key={item.id} className="rounded-lg border border-slate-200 p-4 dark:border-slate-800">
+            {current.items.map((item, idx) => (
+              <div
+                key={item.id}
+                className={`anim-fade-up stagger-${Math.min(8, (idx % 8) + 1)} rounded-lg border p-4 transition-colors ${
+                  item.status === "completed"
+                    ? "border-emerald-300 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-950/30"
+                    : "border-slate-200 hover:border-brand-300 dark:border-slate-800 dark:hover:border-brand-700"
+                }`}
+              >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="badge-brand">Month {item.month}</span>
                       <span className={STATUS_STYLE[item.status] ?? "badge-slate"}>
-                        {item.status.replace("_", " ")}
+                        {item.status === "completed" ? "✓ " : ""}{item.status.replace("_", " ")}
                       </span>
                     </div>
-                    <p className="mt-1.5 font-medium text-slate-800 dark:text-slate-200">{item.title}</p>
+                    <p className={`mt-1.5 font-medium text-slate-800 dark:text-slate-200 ${item.status === "completed" ? "line-through opacity-70" : ""}`}>
+                      {item.title}
+                    </p>
                     <p className="muted mt-0.5 text-xs">{item.description}</p>
                     {item.deadline && (
                       <p className="mt-1 text-xs text-slate-500">Deadline: {formatDate(item.deadline)}</p>

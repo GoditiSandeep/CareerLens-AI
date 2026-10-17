@@ -421,3 +421,226 @@ export const adminApi = {
     api.patch<Job>(`/admin/jobs/${id}`, body),
   deleteJob: (id: number) => api.del<{ deleted: number }>(`/admin/jobs/${id}`),
 };
+
+// ---- AI status (secret-free mode indicator) ----
+export interface AiStatus {
+  provider: string;
+  mode: "mock" | "live";
+  live_configured: boolean;
+  provider_class: string;
+  note: string;
+}
+export const aiStatus = () => api.get<AiStatus>("/ai/status");
+
+// ---- Interview practice types ----
+export interface InterviewFeedback {
+  question_id: number;
+  score: number;
+  feedback: string;
+  improved_answer: string;
+  completed: boolean;
+}
+export interface InterviewReport {
+  report: string;
+  status: string;
+}
+export const interviewApi = {
+  start: (body: { role: string; difficulty: string; interview_type: string }) =>
+    api.post<InterviewSession>("/interviews/start", body),
+  list: () => api.get<InterviewSession[]>("/interviews"),
+  answer: (id: number, answer: string) =>
+    api.post<InterviewFeedback>(`/interviews/${id}/answer`, { answer }),
+  report: (id: number) => api.get<InterviewReport>(`/interviews/${id}/report`),
+};
+
+// ---- AI Career Twin ----
+// The twin is a derived, consent-gated view over the user's own data. Editable
+// fields mirror the profile; the snapshot is an explainable readiness breakdown.
+export interface TwinSignal {
+  earned: number;
+  max: number;
+  count: number;
+  avg_level?: number;
+  of?: number;
+  explanation: string;
+}
+export interface TwinSnapshotData {
+  score: number;
+  signals: Record<string, TwinSignal>;
+  total_earned: number;
+  total_max: number;
+  skill_breakdown: Record<string, TwinSignal>;
+  next_actions: string[];
+  generated_at: string;
+}
+export interface CareerTwin {
+  id: number;
+  work_style: string | null;
+  experience_level: string | null;
+  primary_goal: string | null;
+  strengths: string; // JSON list
+  interests: string; // JSON list
+  focus_areas: string; // JSON list
+  personalization_consent: boolean;
+  analytics_consent: boolean;
+  snapshot: string; // JSON TwinSnapshotData
+  snapshot_score: number;
+  snapshot_at: string | null;
+  updated_at: string;
+}
+export interface TwinRefresh {
+  score: number;
+  snapshot: TwinSnapshotData;
+}
+export interface TwinExport {
+  twin: {
+    work_style: string | null;
+    experience_level: string | null;
+    primary_goal: string | null;
+    strengths: string[];
+    interests: string[];
+    focus_areas: string[];
+    personalization_consent: boolean;
+    analytics_consent: boolean;
+  };
+  skills: Array<{
+    name: string;
+    level: number;
+    target_level?: number | null;
+    category: string;
+  }>;
+  snapshot: TwinSnapshotData;
+  history: Array<{ score: number; at: string; note: string | null }>;
+  exported_at: string | null;
+}
+export const twinApi = {
+  get: () => api.get<CareerTwin>("/twin"),
+  update: (body: {
+    work_style?: string | null;
+    experience_level?: string | null;
+    primary_goal?: string | null;
+    strengths?: string[];
+    interests?: string[];
+    focus_areas?: string[];
+    personalization_consent?: boolean;
+    analytics_consent?: boolean;
+  }) => api.put<CareerTwin>("/twin", body),
+  refresh: () => api.post<TwinRefresh>("/twin/refresh"),
+  export: () => api.get<TwinExport>("/twin/export"),
+  delete: () => api.del<{ deleted: boolean }>("/twin"),
+};
+
+// ---- Career Quest (verifiable points ledger) ----
+export interface QuestBadge {
+  id: string;
+  name: string;
+  points: number;
+  desc: string;
+}
+export interface QuestBadges {
+  earned: QuestBadge[];
+  upcoming: Array<QuestBadge & { remaining: number }>;
+  total_badges: number;
+}
+export interface QuestLevel {
+  level: number;
+  title: string;
+  points: number;
+  next_level: number | null;
+  next_title: string | null;
+  next_points: number | null;
+  progress_to_next: number;
+}
+export interface QuestEvent {
+  id: number;
+  kind: string;
+  points: number;
+  label: string;
+  day: string;
+  created_at: string;
+}
+export interface QuestTimelinePoint {
+  day: string;
+  points: number;
+}
+export interface QuestSummary {
+  points: number;
+  level: QuestLevel;
+  badges: QuestBadges;
+  events: QuestEvent[];
+  timeline: QuestTimelinePoint[];
+  note: string;
+}
+export const questApi = {
+  summary: () => api.get<QuestSummary>("/quest"),
+};
+
+// ---- Adaptive Growth Planner ----
+export interface PlannerSettings {
+  id: number;
+  target_role: string | null;
+  goal_deadline: string | null;
+  hours_per_week: number;
+  study_days: string; // JSON list of weekday ints (0=Mon)
+}
+export interface PlannerTask {
+  id: number;
+  title: string;
+  category: string;
+  target_date: string | null;
+  estimated_minutes: number;
+  priority: number;
+  status: string;
+  is_milestone: boolean;
+  skill_tag: string | null;
+  notes: string | null;
+  completed_at: string | null;
+  created_at: string;
+}
+export interface PlannerWeekReview {
+  week_start: string;
+  completed: number;
+  skipped: number;
+  pending: number;
+  minutes_planned: number;
+  minutes_completed: number;
+  suggestions: string[];
+}
+export const plannerApi = {
+  getSettings: () => api.get<PlannerSettings>("/planner/settings"),
+  updateSettings: (body: {
+    target_role?: string | null;
+    goal_deadline?: string | null;
+    hours_per_week?: number;
+    study_days?: number[];
+  }) => api.put<PlannerSettings>("/planner/settings", body),
+
+  listTasks: (status?: string) =>
+    api.get<PlannerTask[]>(`/planner/tasks${status ? `?status=${encodeURIComponent(status)}` : ""}`),
+  createTask: (body: {
+    title: string;
+    category: string;
+    target_date?: string | null;
+    estimated_minutes?: number;
+    is_milestone?: boolean;
+    skill_tag?: string | null;
+    notes?: string | null;
+  }) => api.post<PlannerTask>("/planner/tasks", body),
+  updateTask: (id: number, body: {
+    title?: string;
+    category?: string;
+    target_date?: string | null;
+    estimated_minutes?: number;
+    status?: string;
+    is_milestone?: boolean;
+    skill_tag?: string | null;
+    notes?: string | null;
+  }) => api.patch<PlannerTask>(`/planner/tasks/${id}`, body),
+  deleteTask: (id: number) => api.del<{ deleted: boolean }>(`/planner/tasks/${id}`),
+
+  schedule: () => api.post<PlannerTask[]>("/planner/schedule"),
+  reschedule: () =>
+    api.post<{ moved: Array<{ id: number; title: string; from: string; to: string }>; count: number }>(
+      "/planner/reschedule"),
+  review: () => api.get<PlannerWeekReview>("/planner/review"),
+};

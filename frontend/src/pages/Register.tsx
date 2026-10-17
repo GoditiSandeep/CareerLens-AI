@@ -57,7 +57,7 @@ export default function Register() {
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 font-bold text-white">C</span>
           <span className="text-lg font-bold text-slate-900 dark:text-white">CareerLens AI</span>
         </Link>
-        <div className="card">
+        <div className="card anim-fade-up">
           <h1 className="page-title">Create your account</h1>
           <p className="page-sub">Set up your student profile in under 2 minutes.</p>
           {error && <div className="mt-4"><ErrorBanner message={error} /></div>}

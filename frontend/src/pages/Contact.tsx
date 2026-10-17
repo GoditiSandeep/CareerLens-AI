@@ -49,7 +49,7 @@ export default function Contact() {
         </nav>
       </header>
 
-      <main className="mx-auto w-full max-w-4xl px-4 py-10">
+      <main className="anim-fade-up mx-auto w-full max-w-4xl px-4 py-10">
         <span className="badge-brand mb-3">Contact</span>
         <h1 className="page-title">We're here to help.</h1>
         <p className="page-sub mt-2">

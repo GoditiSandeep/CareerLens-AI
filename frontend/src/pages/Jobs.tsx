@@ -106,8 +106,8 @@ export default function Jobs() {
       )}
 
       <div className="space-y-4">
-        {jobs?.map((job) => (
-          <div key={job.id} className="card">
+        {jobs?.map((job, idx) => (
+          <div key={job.id} className={`card card-interactive anim-fade-up stagger-${Math.min(8, (idx % 8) + 1)}`}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="font-semibold text-slate-900 dark:text-white">{job.title}</p>

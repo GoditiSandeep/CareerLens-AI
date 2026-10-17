@@ -25,13 +25,15 @@ export default function About() {
       </header>
 
       <main className="mx-auto w-full max-w-4xl px-4 py-10">
-        <span className="badge-brand mb-3">About {SITE.name}</span>
-        <h1 className="page-title">A career companion for every stage of life.</h1>
-        <p className="page-sub mt-2">
-          {SITE.tagline}
-        </p>
+        <div className="anim-fade-up">
+          <span className="badge-brand mb-3">About {SITE.name}</span>
+          <h1 className="page-title">A career companion for every stage of life.</h1>
+          <p className="page-sub mt-2">
+            {SITE.tagline}
+          </p>
+        </div>
 
-        <div className="card mt-6 space-y-4 text-sm text-slate-700 dark:text-slate-300">
+        <div className="anim-fade-up stagger-1 card mt-6 space-y-4 text-sm text-slate-700 dark:text-slate-300">
           <p>
             {SITE.name} helps you discover career opportunities, understand your skills, learn
             new abilities, build personalized plans, prepare for jobs and examinations, manage
@@ -50,8 +52,8 @@ export default function About() {
 
         <h2 className="section-title mt-10">What guides us</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {PRINCIPLES.map((p) => (
-            <div key={p.title} className="card">
+          {PRINCIPLES.map((p, i) => (
+            <div key={p.title} className={`card card-interactive anim-fade-up stagger-${Math.min(8, i + 1)}`}>
               <p className="font-semibold text-slate-900 dark:text-white">{p.title}</p>
               <p className="muted mt-1 text-sm">{p.body}</p>
             </div>

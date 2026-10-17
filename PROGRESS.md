@@ -86,7 +86,23 @@
 - Integration: `scripts/smoke_test.py` (27) + `scripts/admin_integration_test.py` → pass
 - Docs: README routes cross-checked against the live `/openapi.json`
 
-## Honest limitations
+---
+
+## Advanced Feature Expansion & Animation Upgrade (new session)
+
+**Goal:** substantial, *visible* browser improvements + real interactive features. Nothing counts unless wired to real backend data or clearly-labelled fallbacks.
+
+### Checklist
+- [ ] **Design system** — deeper navy/indigo/cyan/violet accents, gradient text, glass surfaces, richer keyframes (`index.css` + `ui.tsx`)
+- [ ] **Landing redesign** — animated gradient hero, how-it-works, interactive feature previews, FAQ, professional footer (`Landing.tsx`)
+- [ ] **Career Universe** — interactive career/skill node explorer from real `/careers` + `/skills` data, keyboard-accessible fallback (`/universe`)
+- [ ] **Career What-If Simulator** — side-by-side career comparison with transferable skills + stated assumptions (`/simulator`)
+- [ ] **Career Twin** — strengths/gaps/next-actions summary from real `/dashboard` + `/profile` (`/twin`)
+- [ ] **Career Quest** — missions/badges/levels derived from real activity (roadmap/projects/interviews) (`/quest`)
+- [ ] **Wire routes + nav** (`App.tsx`, `Layout.tsx`)
+- [ ] **Verify** — `tsc --noEmit`, `npm run build`, backend pytest, integration smoke
+
+### Honest limitations (unchanged)
 - Jobs, projects, and some achievements/certifications are **seeded sample data** (`is_sample=true`), not live verified listings.
 - AI features run in deterministic **mock mode** unless `OPENAI_API_KEY`/`GEMINI_API_KEY` are configured; the UI and admin settings label this clearly.
 - ATS/resume scores are heuristic **estimates**, not guaranteed screening outcomes.

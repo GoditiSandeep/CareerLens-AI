@@ -2,7 +2,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Layout from "./components/Layout";
-import { Loader, ToastProvider } from "./components/ui";
+import { ErrorBoundary, Loader, ToastProvider } from "./components/ui";
 import { Link } from "react-router-dom";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
@@ -14,6 +14,8 @@ import Register from "./pages/Register";
 import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Careers from "./pages/Careers";
+import CareerUniverse from "./pages/CareerUniverse";
+import WhatIf from "./pages/WhatIf";
 import Skills from "./pages/Skills";
 import Roadmap from "./pages/Roadmap";
 import Jobs from "./pages/Jobs";
@@ -24,6 +26,10 @@ import Projects from "./pages/Projects";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import InterviewStudio from "./pages/InterviewStudio";
+import CareerTwin from "./pages/CareerTwin";
+import CareerQuest from "./pages/CareerQuest";
+import GrowthPlanner from "./pages/GrowthPlanner";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -93,13 +99,19 @@ export default function App() {
             <Route path="/onboarding" element={<Protected><Onboarding /></Protected>} />
             <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
             <Route path="/careers" element={<Protected><Careers /></Protected>} />
+            <Route path="/career-universe" element={<Protected><CareerUniverse /></Protected>} />
+            <Route path="/what-if" element={<Protected><WhatIf /></Protected>} />
             <Route path="/skills" element={<Protected><Skills /></Protected>} />
             <Route path="/roadmap" element={<Protected><Roadmap /></Protected>} />
             <Route path="/jobs" element={<Protected><Jobs /></Protected>} />
             <Route path="/applications" element={<Protected><Applications /></Protected>} />
             <Route path="/resumes" element={<Protected><Resumes /></Protected>} />
             <Route path="/practice" element={<Protected><Practice /></Protected>} />
-            <Route path="/projects" element={<Protected><Projects /></Protected>} />
+            <Route path="/interview-studio" element={<Protected><InterviewStudio /></Protected>} />
+            <Route path="/career-twin" element={<Protected><CareerTwin /></Protected>} />
+            <Route path="/career-quest" element={<Protected><CareerQuest /></Protected>} />
+            <Route path="/growth-planner" element={<Protected><GrowthPlanner /></Protected>} />
+            <Route path="/projects" element={<Protected><ErrorBoundary label="Projects page"><Projects /></ErrorBoundary></Protected>} />
             <Route path="/chat" element={<Protected><Chat /></Protected>} />
             <Route path="/profile" element={<Protected><Profile /></Protected>} />
             <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />

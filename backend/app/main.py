@@ -12,15 +12,19 @@ from app.api import (
     extras,
     extras_chat,  # noqa: F401  (registers routes onto extras.router)
     jobs,
+    planner,
     practice,
     practice_extra,  # noqa: F401  (registers routes onto practice.router)
     profile,
+    quest,
     resumes,
     resume_analysis,  # noqa: F401  (registers routes onto resumes.router)
     roadmap,
+    twin,
 )
 from app.core.config import settings
 from app.database.db import SessionLocal, init_db
+from app.ai.service import is_mock_mode, get_ai_provider
 
 
 @asynccontextmanager
@@ -53,6 +57,31 @@ def health():
     return {"status": "healthy"}
 
 
+@app.get("/ai/status")
+def ai_status():
+    """Public, secret-free AI mode indicator.
+
+    Lets the UI honestly label whether AI features are running on a real
+    configured provider or the deterministic offline fallback. Never exposes
+    keys, tokens, or model credentials — only the provider name and mode.
+    """
+    provider = get_ai_provider()
+    mock = is_mock_mode()
+    return {
+        "provider": settings.AI_PROVIDER.strip().lower() or "mock",
+        "mode": "mock" if mock else "live",
+        "live_configured": not mock,
+        "provider_class": type(provider).__name__,
+        "note": (
+            "Deterministic offline fallback — no external AI model was called. "
+            "Responses are generated locally and clearly labelled."
+            if mock else
+            "A real AI provider is configured and active. Personal data is only "
+            "sent with your consent."
+        ),
+    }
+
+
 app.include_router(auth.router)
 app.include_router(profile.router)
 app.include_router(dashboard.router)
@@ -62,4 +91,7 @@ app.include_router(roadmap.router)
 app.include_router(jobs.router)
 app.include_router(extras.router)  # also carries extras_chat routes
 app.include_router(practice.router)  # also carries practice_extra routes
+app.include_router(twin.router)  # AI Career Twin
+app.include_router(planner.router)  # Adaptive Growth Planner
+app.include_router(quest.router)  # Career Quest gamification
 app.include_router(admin.router)  # admin-only dashboard API

@@ -141,8 +141,8 @@ export default function Projects() {
             hint="Add your class projects, internships or side builds — recruiters look for evidence." />
         )}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {mine?.map((p) => (
-            <div key={p.id} className="card">
+          {mine?.map((p, idx) => (
+            <div key={p.id} className={`card card-interactive anim-fade-up stagger-${Math.min(8, (idx % 8) + 1)}`}>
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold text-slate-900 dark:text-white">{p.title}</p>
                 <span className={p.status === "completed" ? "badge-green"
@@ -172,8 +172,8 @@ export default function Projects() {
         </p>
         {!ideas && !error && <Loader />}
         <div className="grid gap-4 md:grid-cols-2">
-          {ideas?.map((idea) => (
-            <div key={idea.title} className="card">
+          {ideas?.map((idea, idx) => (
+            <div key={idea.title} className={`card card-interactive anim-fade-up stagger-${Math.min(8, (idx % 8) + 1)}`}>
               <div className="flex items-start justify-between gap-2">
                 <p className="font-semibold text-slate-900 dark:text-white">{idea.title}</p>
                 <div className="flex gap-1.5">
