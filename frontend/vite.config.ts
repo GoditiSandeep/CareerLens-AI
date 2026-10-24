@@ -46,6 +46,14 @@ export default defineConfig({
         "/coding",
         "/ai",
         "/admin",
+        // Growth-suite routers (twin / planner / quest). These were added to
+        // the backend after the whitelist above; without an entry their
+        // requests fall through to the SPA HTML fallback and the client's
+        // JSON.parse silently yields null → blank pages. Keep this list in
+        // sync with every API path first-segment used in frontend/src.
+        "/twin",
+        "/planner",
+        "/quest",
       ].map(apiProxy),
     ),
   },

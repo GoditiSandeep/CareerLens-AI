@@ -1,3 +1,5 @@
+# Local DEVELOPMENT stack: localhost ports and dev placeholder credentials.
+# For production use docker-compose.prod.example.yml + DEPLOYMENT.md.
 version: "3.9"
 
 services:

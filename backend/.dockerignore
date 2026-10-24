@@ -1,0 +1,15 @@
+# Keep the Docker build context clean and secret-free:
+# local databases, private uploads and env files must never enter the image.
+.env
+.env.*
+*.db
+*.db-*
+*.sqlite*
+uploads/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+tests/
+*.md

@@ -1,0 +1,85 @@
+# =====================================================================
+# CareerLens AI — PRODUCTION compose template
+#
+# Usage:
+#   1. Copy this file to docker-compose.prod.yml  (git-ignored — never commit it)
+#   2. Create a .env next to this file with the required values below
+#      (see DEPLOYMENT.md for generation commands)
+#   3. docker compose -f docker-compose.prod.yml up -d --build
+#
+# Every secret is FORCED via ${VAR:?...} interpolation: the stack refuses to
+# start until real values are provided. Nothing sensitive lives in this file.
+# =====================================================================
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: careerlens-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-careerlens}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env - see DEPLOYMENT.md}"
+      POSTGRES_DB: "${POSTGRES_DB:-careerlens}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Deliberately NO host port mapping: PostgreSQL is reachable only by the
+    # backend container over the internal compose network (audit fix:
+    # database exposure). It is never published to the host or the internet.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-careerlens}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: careerlens-backend
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: "production"          # enables strict startup validation
+      DEBUG: "false"                     # also disables /docs, /redoc, /openapi.json
+      SECRET_KEY: "${SECRET_KEY:?Set SECRET_KEY in .env - see DEPLOYMENT.md}"
+      DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:-careerlens}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env - see DEPLOYMENT.md}@db:5432/${POSTGRES_DB:-careerlens}"
+      CORS_ORIGINS: "${CORS_ORIGINS:?Set CORS_ORIGINS to your real frontend origin(s) - see DEPLOYMENT.md}"
+      ACCESS_TOKEN_EXPIRE_MINUTES: "${ACCESS_TOKEN_EXPIRE_MINUTES:-10080}"
+      AI_PROVIDER: "${AI_PROVIDER:-mock}"
+      MOCK_AI_MODE: "${MOCK_AI_MODE:-true}"
+      SEED_DEMO_DATA: "${SEED_DEMO_DATA:-true}"
+    ports:
+      # Loopback only — your host reverse proxy (Caddy/nginx) terminates TLS
+      # and forwards to 127.0.0.1:8000. Never publish the API publicly.
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - uploads:/app/uploads            # private resume files persist across redeploys
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Baked into the bundle at build time (Vite inlines VITE_* vars).
+        # Must be the PUBLIC backend origin (e.g. https://api.example.com) —
+        # never localhost, or every user's browser would call their own machine.
+        VITE_API_URL: "${VITE_API_URL:?Set VITE_API_URL to your public backend origin - see DEPLOYMENT.md}"
+    container_name: careerlens-frontend
+    restart: unless-stopped
+    ports:
+      # Loopback only — the reverse proxy serves public HTTPS for the site.
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  uploads:

@@ -1,3 +1,8 @@
+# ---- Production deployment ----
+# Local copy of the production compose template (contains host-specific
+# values). The committed template is docker-compose.prod.example.yml.
+docker-compose.prod.yml
+
 # ---- Environment / secrets ----
 .env
 .env.local

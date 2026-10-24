@@ -1,0 +1,11 @@
+# Keep the Docker build context clean and secret-free:
+# `COPY . .` must never carry host state or local env files into the image.
+node_modules
+dist
+.vite
+.env
+.env.*
+*.local
+npm-debug.log*
+*.tsbuildinfo
+.DS_Store

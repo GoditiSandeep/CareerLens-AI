@@ -12,6 +12,11 @@ from app.core.config import settings
 
 async def extract_resume_text(upload: UploadFile, dest: Path) -> tuple[str, int, str]:
     """Save upload to dest, return (text, size_bytes, content_type)."""
+    # Defence in depth: never write outside the configured uploads directory,
+    # even if a caller builds `dest` from unsanitised input.
+    upload_root = settings.upload_dir.resolve()
+    if not dest.resolve().is_relative_to(upload_root):
+        raise HTTPException(status_code=400, detail="Invalid upload path")
     ext = Path(upload.filename or "").suffix.lower()
     if ext not in settings.allowed_extensions:
         raise HTTPException(

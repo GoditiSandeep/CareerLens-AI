@@ -165,6 +165,14 @@ docker compose up --build
 
 For Docker, PostgreSQL is the default; local dev keeps the zero-setup SQLite fallback.
 
+### Production deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the full checklist (secrets, CORS,
+`VITE_API_URL`, database persistence, backups). Use the template
+`docker-compose.prod.example.yml` (copy to `docker-compose.prod.yml`) — it
+never contains real secrets; every value is supplied by your local `.env`,
+which stays out of Git and Docker build contexts.
+
 ## Feature map (Phases A–M)
 
 - **A – Backend:** JWT auth (register/login/me), profile + onboarding, skills + gap analysis, roadmap generation, jobs (search, match %, save, apply), applications Kanban, resume upload/parsing/scoring/job-match, interviews, aptitude tests, coding practice, projects, achievements, certifications, AI chat + history, dashboard/readiness, profile export — all with OpenAPI docs.

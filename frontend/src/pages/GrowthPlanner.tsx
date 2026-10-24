@@ -65,6 +65,13 @@ export default function GrowthPlanner() {
         plannerApi.listTasks(),
         plannerApi.review().catch(() => null),
       ]);
+      // The only unguarded collection: a malformed "success" payload (e.g. an
+      // HTML page served with 200 by the dev server) would otherwise reach
+      // render as null and crash tasks.filter, blanking the page. Fail loudly
+      // here so the existing error banner shows instead — no silent swallowing.
+      if (!Array.isArray(t)) {
+        throw new Error("Planner service returned an unexpected tasks response");
+      }
       setSettings(s);
       setTasks(t);
       setReview(r);
