@@ -1,8 +1,15 @@
 // CareerLens AI — typed API client with JWT handling.
-// Base URL comes from VITE_API_URL (see .env.example) and defaults to the
-// Vite dev proxy so `npm run dev` works out of the box.
+// Base URL comes from VITE_API_URL when set; production builds fall back to
+// the deployed backend (see PROD_API_BASE) so the SPA never calls localhost
+// or relative URLs (which fail on Vercel). Local dev leaves it empty and uses
+// the Vite dev proxy.
 
-const RAW_BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "";
+const envBase = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(envBase ?? "");
+const PROD_API_BASE = "https://careerlens-ai-64ub.onrender.com";
+const RAW_BASE =
+  (!isLocalhost ? envBase : undefined) ||
+  (import.meta.env.PROD ? PROD_API_BASE : "");
 export const API_BASE = RAW_BASE.replace(/\/+$/, "");
 
 const TOKEN_KEY = "careerlens_token";
@@ -59,7 +66,7 @@ async function request<T>(
       body: opts.form ? opts.form : opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
     });
   } catch {
-    throw new ApiError(0, "Cannot reach the server. Is the backend running on port 8000?");
+    throw new ApiError(0, "Cannot reach the server. Is the backend running?");
   }
 
   if (res.status === 401 && !path.startsWith("/auth/")) {
